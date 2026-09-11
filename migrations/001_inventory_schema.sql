@@ -400,14 +400,18 @@ $$;
 alter table public.items enable row level security;
 alter table public.reservations enable row level security;
 
--- Table permissions. New Supabase projects no longer grant these automatically.
--- service_role may read, insert, and update (the functions need this). Nobody may delete through the API.
+-- Table permissions.
+-- Supabase may grant permissions on new tables automatically (project setting
+-- "Automatically expose new tables"). First remove all of them, then grant exactly what the API needs,
+-- so the result is the same on every project.
+-- service_role may read, insert, and update (the functions need this). No role may delete.
 -- UPDATE on items is needed because SELECT ... FOR UPDATE requires it.
 grant usage on schema public to service_role;
-revoke all on table public.items, public.reservations from anon, authenticated;
+revoke all on table public.items, public.reservations from anon, authenticated, service_role;
 grant select, insert, update on table public.items, public.reservations to service_role;
 
--- Function permissions. PostgreSQL lets everyone (PUBLIC) run a new function by default.
+-- Function permissions. PostgreSQL lets everyone (PUBLIC) run a new function by default,
+-- and Supabase may also grant it to anon and authenticated. Remove that, then allow only service_role.
 revoke execute on function
   public.create_item(text, integer),
   public.get_item_status(uuid),
