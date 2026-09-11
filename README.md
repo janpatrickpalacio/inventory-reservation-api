@@ -24,8 +24,10 @@ The API stays correct when requests overlap (it never oversells) and when reques
 6. [Environment variables](#environment-variables)
 7. [Run locally](#run-locally)
 8. [Tests and concurrency scenarios](#tests-and-concurrency-scenarios)
-9. [Deploy to Vercel](#deploy-to-vercel)
-10. [Known limitations and trade-offs](#known-limitations-and-trade-offs)
+9. [Verification](#verification)
+10. [Deploy to Vercel](#deploy-to-vercel)
+11. [Time spent](#time-spent)
+12. [Known limitations and trade-offs](#known-limitations-and-trade-offs)
 
 ---
 
@@ -220,7 +222,7 @@ All variables are listed in [`.env.example`](.env.example). If a required variab
 
 ## Run locally
 
-Requirements: Node.js 24 and npm.
+Requirements: Node.js 24 and npm. [`.nvmrc`](.nvmrc) contains `24`, so `nvm use` or `fnm use` selects the right version.
 
 ```bash
 npm ci
@@ -344,6 +346,25 @@ It pauses before each step and prints each real request, response, and the stock
 
 ---
 
+## Verification
+
+[`VERIFICATION.md`](VERIFICATION.md) lists every check that was actually run, with its real result, and marks the checks that were not run. Summary:
+
+| Check | Result |
+|---|---|
+| `npm run typecheck` | No errors |
+| `npm test` | 15 of 15 tests passed |
+| Migration in the Supabase SQL Editor | "Success. No rows returned" |
+| `npm run test:concurrency` against the local API and Supabase | 14 of 14 checks passed (20 overlapping requests for 5 units: 5 × `201`, 15 × `409`) |
+| `npm run test:expiry` with a 5-second hold time | 13 of 13 checks passed |
+| Demo script, full run | Final stock 5 / 4 / 0 / 1, as expected |
+| Deployed API smoke test, without a Vercel login | Passed (docs, OpenAPI, full lifecycle, errors; function region `icn1`) |
+| `npm run test:concurrency` against the deployed API | 14 of 14 checks passed |
+| Manual lock-wait check in the SQL Editor | Not run |
+| Swagger "Try it out" in a browser on the deployed URL | Not run |
+
+---
+
 ## Deploy to Vercel
 
 Vercel detects the Express app in `src/app.ts` (default export). [`vercel.json`](vercel.json) only sets the function region to `icn1` (Seoul), next to the Supabase database (`ap-northeast-2`, Seoul). Vercel's default region is `iad1` (Washington, D.C.). If your Supabase project is in another region, change `regions` to the closest [Vercel region](https://vercel.com/docs/regions).
@@ -374,6 +395,22 @@ npx vercel deploy --prod
 - Run `npm run test:concurrency -- --base-url https://<your-app>.vercel.app`.
 
 Use the production domain for reviewers. Preview deployment URLs can be protected by Vercel login.
+
+---
+
+## Time spent
+
+Measured from the command history and git timestamps on 12 September 2026 (UTC+8). The work was done with AI assistance, which the assignment allows (section 3).
+
+| Moment | Time |
+|---|---|
+| First setup command | 01:35 |
+| Code, migration, tests, and scripts committed | 02:05 |
+| Tests against Supabase passed; README committed | 02:34 |
+| Deployed API passed its smoke and concurrency tests | 02:38 |
+| README links pushed; automatic redeploy checked | 02:42 |
+
+Total: about 67 minutes from the first command to a verified deployment. This includes creating the Supabase project and logging in to Vercel. It does not include writing the implementation plan before the first command, or recording the demo video.
 
 ---
 
