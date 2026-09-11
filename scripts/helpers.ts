@@ -8,12 +8,14 @@ const { values } = parseArgs({
   options: {
     'base-url': { type: 'string', default: 'http://localhost:3000' },
     'item-id': { type: 'string' },
+    'no-pause': { type: 'boolean', default: false },
   },
 });
 
 export const options = {
   baseUrl: values['base-url'].replace(/\/+$/, ''),
   itemId: values['item-id'],
+  noPause: values['no-pause'],
 };
 
 export interface ApiResponse {

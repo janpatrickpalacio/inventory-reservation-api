@@ -3,6 +3,7 @@
 // 1. In Swagger (/docs), create a NEW item with 5 units and copy its id.
 // 2. Run:  npm run demo -- --item-id <that id>
 //    (add --base-url https://your-app.vercel.app to use the deployed API)
+//    (add --no-pause to run all steps without waiting, for a quick rehearsal)
 //
 // Every step is a real HTTP request. The script stops if a response is not what we expect.
 
@@ -19,7 +20,11 @@ async function runStep(
   body: unknown,
   expectedStatus: number,
 ) {
-  await terminal.question(`\nPress Enter to ${description}...`);
+  if (options.noPause) {
+    console.log(`\n--- ${description} ---`);
+  } else {
+    await terminal.question(`\nPress Enter to ${description}...`);
+  }
 
   console.log(`\n${method} ${path}`);
   if (body !== undefined) {
