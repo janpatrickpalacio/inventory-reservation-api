@@ -4,7 +4,7 @@
 - **Deployed API:** https://inventory-reservation-api-red.vercel.app
   - Swagger UI: https://inventory-reservation-api-red.vercel.app/docs
   - OpenAPI JSON: https://inventory-reservation-api-red.vercel.app/openapi.json
-- **Demo video:** TODO_VIDEO_URL
+- **Demo video:** https://drive.google.com/file/d/1_294QjjVelXtqjqRPn5eA3mQj8nks_qv/view?usp=sharing
 
 A small backend for a store. You create items with a starting stock, hold stock for a customer (a reservation), then confirm or cancel the reservation. Holds that are not confirmed in time expire.
 
