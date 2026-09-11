@@ -1,7 +1,9 @@
 # Inventory Reservation API
 
-- **Repository:** TODO_GITHUB_URL
-- **Deployed API:** TODO_VERCEL_URL (Swagger UI at `/docs`)
+- **Repository:** https://github.com/janpatrickpalacio/inventory-reservation-api
+- **Deployed API:** https://inventory-reservation-api-red.vercel.app
+  - Swagger UI: https://inventory-reservation-api-red.vercel.app/docs
+  - OpenAPI JSON: https://inventory-reservation-api-red.vercel.app/openapi.json
 - **Demo video:** TODO_VIDEO_URL
 
 A small backend for a store. You create items with a starting stock, hold stock for a customer (a reservation), then confirm or cancel the reservation. Holds that are not confirmed in time expire.
@@ -251,7 +253,7 @@ Start the API (`npm run dev`) with the default hold time, then in another termin
 ```bash
 npm run test:concurrency
 # or against the deployed API:
-npm run test:concurrency -- --base-url https://your-app.vercel.app
+npm run test:concurrency -- --base-url https://inventory-reservation-api-red.vercel.app
 ```
 
 Each scenario creates its own new item and sends requests at the same time (`Promise.all`):
@@ -345,6 +347,8 @@ It pauses before each step and prints each real request, response, and the stock
 ## Deploy to Vercel
 
 Vercel detects the Express app in `src/app.ts` (default export). [`vercel.json`](vercel.json) only sets the function region to `icn1` (Seoul), next to the Supabase database (`ap-northeast-2`, Seoul). Vercel's default region is `iad1` (Washington, D.C.). If your Supabase project is in another region, change `regions` to the closest [Vercel region](https://vercel.com/docs/regions).
+
+The Vercel project for this repository is connected to GitHub, so every push to `main` creates a new production deployment.
 
 ### With the Vercel dashboard
 
