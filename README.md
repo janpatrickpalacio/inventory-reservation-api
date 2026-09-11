@@ -367,7 +367,7 @@ It pauses before each step and prints each real request, response, and the stock
 | Swagger "Try it out" in a browser on the deployed URL | Not run |
 | Stock read race with two database sessions (real PostgreSQL 18.4) | Before 002: a read showed held 2 and available -1 on a 1-unit item. After 002: held 1, available 0 |
 | 55 SQL checks on 001 + 002 (lifecycle, constraints, permissions) | 55 of 55 passed, with and without automatic grants |
-| Migration 002 in the Supabase SQL Editor | Not run yet |
+| Migration 002 in the Supabase SQL Editor, then the tests again | Run by the project owner. Afterwards: local concurrency 14 of 14, expiry 13 of 13, deployed concurrency 14 of 14 |
 
 ---
 
