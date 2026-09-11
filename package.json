@@ -1,0 +1,30 @@
+{
+  "name": "inventory-reservation-api",
+  "version": "1.0.0",
+  "description": "Inventory Reservation API: Express + TypeScript, Supabase PostgreSQL, deployed on Vercel",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/local.ts",
+    "start": "tsx --env-file-if-exists=.env src/local.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --env-file=tests/test.env --test tests/http.test.ts",
+    "test:concurrency": "tsx scripts/concurrency-test.ts",
+    "test:expiry": "tsx scripts/expiry-test.ts",
+    "demo": "tsx scripts/demo.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
+    "express": "^5.2.1",
+    "zod": "^4.6.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.13.4",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3"
+  }
+}
