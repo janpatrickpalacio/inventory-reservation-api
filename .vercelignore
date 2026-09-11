@@ -1,0 +1,3 @@
+# The Vercel CLI uploads every file in the folder except a default list.
+# That list includes .env.local but not .env, so keep local secrets out of the upload.
+.env
