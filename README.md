@@ -65,6 +65,7 @@ CONFIRMED, CANCELLED, and EXPIRED are final. A reservation never leaves a final 
 - **Count after the lock.** Stock is counted in a new query after the lock is taken, so it includes reservations committed by the request that held the lock before.
 - **Read the clock after the lock.** Deadlines are checked with `clock_timestamp()` after the lock, not the transaction start time, so a request that waited cannot confirm a reservation that expired while it waited.
 - **Retries check the stored status.** Confirming a CONFIRMED reservation, or cancelling a CANCELLED one, changes nothing and returns the stored reservation.
+- **Consistent stock reads.** `get_item_status` reads all rows from one snapshot and takes its expiry time with `clock_timestamp()` after that snapshot exists. The first version used `now()` (the transaction start time). A test with two database sessions showed that a read could then report held 2 and available -1 for an item with 1 unit. Migration 002 fixes this. Writes were not affected.
 
 ### Expiry
 
@@ -159,7 +160,8 @@ For `409` responses on confirm and cancel, `details.reservation` contains the st
 
 ```text
 migrations/
-  001_inventory_schema.sql   Tables, constraints, indexes, the 6 functions, access rules
+  001_inventory_schema.sql     Tables, constraints, indexes, the 6 functions, access rules
+  002_fix_stock_read_time.sql  Replaces get_item_status: expiry time read after the data snapshot
 src/
   app.ts          Builds the Express app (the entry point Vercel uses)
   local.ts        Starts the app on a port for local development
@@ -199,11 +201,12 @@ Request path: `routes.ts` → `service.ts` → `database.ts` → PostgreSQL func
    - **Automatically expose new tables**: off (Supabase's recommendation). The migration gives the same permissions either way, because it first removes all automatic permissions and then grants only what the API needs.
    - **Enable automatic RLS**: not needed. The migration enables Row Level Security itself.
 2. Open **SQL Editor → New query**. Paste the whole content of [`migrations/001_inventory_schema.sql`](migrations/001_inventory_schema.sql) and click **Run**. The result is "Success. No rows returned".
-3. Copy two values for the environment variables:
+3. Open another new query. Paste the whole content of [`migrations/002_fix_stock_read_time.sql`](migrations/002_fix_stock_read_time.sql) and click **Run**. It replaces `get_item_status` with the version that reads the clock after its data snapshot (see [How it works](#how-it-works)).
+4. Copy two values for the environment variables:
    - **Project URL**, in the form `https://<project-ref>.supabase.co`: **Connect** button, or **Project Settings → Data API**. Do not include `/rest/v1`, because supabase-js adds it. The app refuses to start if the URL contains it.
    - **Secret key** (starts with `sb_secret_`): **Project Settings → API Keys**
 
-The migration runs in one transaction. Run it once, on a project without these tables. A second run fails because the tables already exist, and it changes nothing.
+Each migration runs in one transaction. Run 001 once, on a project without these tables: a second run fails because the tables already exist, and it changes nothing. 002 only replaces one function, so running it again is harmless.
 
 ---
 
@@ -362,6 +365,9 @@ It pauses before each step and prints each real request, response, and the stock
 | `npm run test:concurrency` against the deployed API | 14 of 14 checks passed |
 | Manual lock-wait check in the SQL Editor | Not run |
 | Swagger "Try it out" in a browser on the deployed URL | Not run |
+| Stock read race with two database sessions (real PostgreSQL 18.4) | Before 002: a read showed held 2 and available -1 on a 1-unit item. After 002: held 1, available 0 |
+| 55 SQL checks on 001 + 002 (lifecycle, constraints, permissions) | 55 of 55 passed, with and without automatic grants |
+| Migration 002 in the Supabase SQL Editor | Not run yet |
 
 ---
 
